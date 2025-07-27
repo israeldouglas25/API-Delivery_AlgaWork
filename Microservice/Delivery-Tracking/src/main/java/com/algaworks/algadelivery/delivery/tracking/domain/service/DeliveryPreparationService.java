@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.UUID;
 
@@ -20,6 +21,9 @@ import java.util.UUID;
 public class DeliveryPreparationService {
 
     private final DeliveryRepository deliveryRepository;
+
+    private final DeliveryTimeEstimationService deliveryTimeEstimationService;
+    private final CourierPayoutCalculationService courierPayoutCalculationService;
 
     @Transactional
     public Delivery draft(DeliveryInput input) {
@@ -62,16 +66,15 @@ public class DeliveryPreparationService {
                 .phone(recipientInput.getPhone())
                 .build();
 
-        Duration expectedDeliveryTime = Duration.ofHours(3);
-        BigDecimal distanceFee = BigDecimal.valueOf(10.00);
-
-        BigDecimal payout = BigDecimal.valueOf(10.00);
+        DeliveryEstimate estiamte = deliveryTimeEstimationService.estiamte(sender, recipient);
+        BigDecimal calculatePayout = courierPayoutCalculationService.calculatePayout(estiamte.getDistanceInKm());
+        BigDecimal distanceFee = calculateFee(estiamte.getDistanceInKm());
 
         Delivery.PreparationDetails preparationDetails = Delivery.PreparationDetails.builder()
                 .sender(sender)
                 .recipient(recipient)
-                .expectedDeliveryTime(expectedDeliveryTime)
-                .courierPayout(payout)
+                .expectedDeliveryTime(estiamte.getEstimatedTime())
+                .courierPayout(calculatePayout)
                 .distanceFee(distanceFee)
                 .build();
 
@@ -80,6 +83,12 @@ public class DeliveryPreparationService {
         for (ItemInput itemInput : input.getItems()) {
             delivery.addItem(itemInput.getName(), itemInput.getQuantity());
         }
+    }
+
+    private BigDecimal calculateFee(Double distanceInKm) {
+        return new BigDecimal("3")
+                .multiply(new BigDecimal(distanceInKm))
+                .setScale(2, RoundingMode.HALF_EVEN);
     }
 }
 
