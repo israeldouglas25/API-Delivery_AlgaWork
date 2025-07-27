@@ -70,4 +70,79 @@ class CourierControllerTest {
                 .body("phone", Matchers.equalTo("81977777777"));
     }
 
+    @Test
+    void shouldReturn404WhenCourierDoesNotExist() {
+        UUID randomId = UUID.randomUUID();
+
+        RestAssured
+                .given()
+                .pathParam("courierId", randomId)
+                .accept(ContentType.JSON)
+                .when()
+                .get("/{courierId}")
+                .then()
+                .statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    void shouldUpdateCourierSuccessfully() {
+        UUID courierId = courierRepository.saveAndFlush(Courier.brandNew("Ana Paula", "81988888888")).getId();
+
+        String requestBody = """
+                 {
+                     "name": "Ana Paula Atualizada",
+                     "phone": "81988888888"
+                 }
+                """;
+
+        RestAssured
+                .given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(requestBody)
+                .pathParam("courierId", courierId)
+                .when()
+                .put("/{courierId}")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("id", Matchers.equalTo(courierId.toString()))
+                .body("name", Matchers.equalTo("Ana Paula Atualizada"))
+                .body("phone", Matchers.equalTo("81988888888"));
+    }
+
+    @Test
+    void shouldReturnPagedCouriers() {
+        courierRepository.saveAndFlush(Courier.brandNew("Carlos", "81966666666"));
+        courierRepository.saveAndFlush(Courier.brandNew("Fernanda", "81955555555"));
+
+        RestAssured
+                .given()
+                .accept(ContentType.JSON)
+                .when()
+                .get()
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("content.size()", Matchers.greaterThanOrEqualTo(2));
+    }
+
+    @Test
+    void shouldCalculatePayoutSuccessfully() {
+        String requestBody = """
+                {
+                    "distanceInKm": 12.5
+                }
+                """;
+
+        RestAssured
+                .given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(requestBody)
+                .when()
+                .post("/payout-calculation")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("payoutFee", Matchers.notNullValue());
+    }
+
 }
