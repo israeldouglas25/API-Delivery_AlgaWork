@@ -4,7 +4,6 @@ import com.algaworks.algadelivery.delivery.tracking.domain.exception.DomainExcep
 import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -150,7 +149,7 @@ class DeliveryTest {
 
         delivery.markAsDelivered();
 
-        assertEquals(DeliveryStatus.DELIVERY, delivery.getStatus());
+        assertEquals(DeliveryStatus.DELIVERED, delivery.getStatus());
         assertNotNull(delivery.getFulfilledAt());
     }
 
@@ -160,7 +159,7 @@ class DeliveryTest {
         delivery.addItem("Pizza", 2);
 
         List<Item> items = delivery.getItems();
-        assertThrows(UnsupportedOperationException.class, () -> items.add(Item.brandNew("Soda", 1)));
+        assertThrows(UnsupportedOperationException.class, () -> items.add(Item.brandNew("Soda", 1, delivery)));
     }
 
     private Delivery.PreparationDetails createValidationDetails() {

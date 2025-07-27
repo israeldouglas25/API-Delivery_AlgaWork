@@ -8,28 +8,28 @@ class DeliveryStatusTest {
     void canChangeToReturnsTrueForValidTransitions() {
         assertTrue(DeliveryStatus.DRAFT.canChangeTo(DeliveryStatus.WAITING_FOR_COURIER));
         assertTrue(DeliveryStatus.WAITING_FOR_COURIER.canChangeTo(DeliveryStatus.IN_TRANSIT));
-        assertTrue(DeliveryStatus.IN_TRANSIT.canChangeTo(DeliveryStatus.DELIVERY));
+        assertTrue(DeliveryStatus.IN_TRANSIT.canChangeTo(DeliveryStatus.DELIVERED));
     }
 
     @org.junit.jupiter.api.Test
     void canChangeToReturnsFalseForInvalidTransitions() {
         assertFalse(DeliveryStatus.DRAFT.canChangeTo(DeliveryStatus.IN_TRANSIT));
-        assertFalse(DeliveryStatus.WAITING_FOR_COURIER.canChangeTo(DeliveryStatus.DELIVERY));
-        assertFalse(DeliveryStatus.DELIVERY.canChangeTo(DeliveryStatus.DRAFT));
+        assertFalse(DeliveryStatus.WAITING_FOR_COURIER.canChangeTo(DeliveryStatus.DELIVERED));
+        assertFalse(DeliveryStatus.DELIVERED.canChangeTo(DeliveryStatus.DRAFT));
     }
 
     @org.junit.jupiter.api.Test
     void canNotChangeToReturnsTrueForInvalidTransitions() {
         assertTrue(DeliveryStatus.DRAFT.canNotChangeTo(DeliveryStatus.IN_TRANSIT));
-        assertTrue(DeliveryStatus.WAITING_FOR_COURIER.canNotChangeTo(DeliveryStatus.DELIVERY));
-        assertTrue(DeliveryStatus.DELIVERY.canNotChangeTo(DeliveryStatus.DRAFT));
+        assertTrue(DeliveryStatus.WAITING_FOR_COURIER.canNotChangeTo(DeliveryStatus.DELIVERED));
+        assertTrue(DeliveryStatus.DELIVERED.canNotChangeTo(DeliveryStatus.DRAFT));
     }
 
     @org.junit.jupiter.api.Test
     void canNotChangeToReturnsFalseForValidTransitions() {
         assertFalse(DeliveryStatus.DRAFT.canNotChangeTo(DeliveryStatus.WAITING_FOR_COURIER));
         assertFalse(DeliveryStatus.WAITING_FOR_COURIER.canNotChangeTo(DeliveryStatus.IN_TRANSIT));
-        assertFalse(DeliveryStatus.IN_TRANSIT.canNotChangeTo(DeliveryStatus.DELIVERY));
+        assertFalse(DeliveryStatus.IN_TRANSIT.canNotChangeTo(DeliveryStatus.DELIVERED));
     }
 
     @org.junit.jupiter.api.Test
